@@ -36,13 +36,10 @@ class MyCallbacks: public BLECharacteristicCallbacks {
       std::string rxValue = pCharacteristic->getValue();
  
       if (rxValue.length() > 0) {
-        Serial.println("*********");
         Serial.print("Received Value: ");
         for (int i = 0; i < rxValue.length(); i++)
           Serial.print(rxValue[i]);
- 
-        Serial.println();
-        Serial.println("*********");
+        Serial.println(" ");
       }
     }
 };
@@ -85,15 +82,16 @@ void setup() {
 }
  
 void loop() {
- 
     if (deviceConnected) {
-        temp = random(100);
-        char cstr[16];
-        itoa(temp, cstr, 10);
-        pTxCharacteristic->setValue(cstr);
+        StaticJsonDocument<200> doc;
+        doc["data"] = random(100);
+        String payload;
+        serializeJson(doc, payload);
+        const char *cpayload = payload.c_str();
+        pTxCharacteristic->setValue(cpayload);
         pTxCharacteristic->notify();
         // txValue++;
-        delay(1000); // bluetooth stack will go into congestion, if too many packets are sent
+        delay(5000); // bluetooth stack will go into congestion, if too many packets are sent
     }
  
     // disconnecting
