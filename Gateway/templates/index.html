@@ -5,19 +5,42 @@
     <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
 </head>
 <body>
-     <div class="container">
-        <br>
-        <div class="row">
-            <h2 align="center">Data Log:</h2>
-            <div class="logging_window" id="logging">
-                <iframe frameborder="0"
+<div class="container">
+    <br>
+    <div class="row">
+        <h2 align="center">Data Log:</h2>
+        <div class="logging_window" id="logging">
+            <iframe frameborder="0"
                     onresize="noresize"
                     style='background: transparent; width: 100%; height:100%;'
                     src="{{ url_for('data_stream')}}">
-                </iframe>
-            </div>
+            </iframe>
         </div>
     </div>
-    <script src="/static/js/jquery-3.6.0.min.js"></script>
-    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+
+</div>
+<br>
+<div class="container">
+    <div class="row">
+        <button type="button" class="btn btn-primary" onclick="connect()">Connect</button>
+    </div>
+    <br>
+    <div class="row">
+        <button type="button" class="btn btn-danger" onclick="disconnect()">Disconnect</button>
+    </div>
+</div>
+<script>
+        function connect() {
+            var request = new XMLHttpRequest();
+            request.open("POST", "http://127.0.0.1:5001/connect_bl");
+            request.send();
+        }
+        function disconnect() {
+            var request = new XMLHttpRequest();
+            request.open("POST", "http://127.0.0.1:5001/disconnect_bl");
+            request.send();
+        }
+</script>
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
 </body>

@@ -5,7 +5,7 @@ from time import time, sleep
 from zlib import compress
 import bluetooth
 import paho.mqtt.client as mqtt
-from flask import Flask, Response, request, render_template
+from flask import Flask, Response, request, render_template, redirect, url_for
 from lib.utility.json_ import parse, stringify, safe_deep_get_with_type
 from lib.webservice.wsrequest import JPOST
 from lib.utility.file_ import save_json_file, load_json_file
@@ -163,13 +163,13 @@ def connect_bl():
     port = 1
     # Create the client socket
     sock.connect((addr, port))
-    return Response(status=200)
+    return redirect(url_for('/'))
 
 
 @app.route('/disconnect_bl', methods=['POST'])
 def disconnect_bl():
     sock.close()
-    return Response(status = 200)
+    return redirect(url_for('/'))
 
 
 @app.route('/data_stream')
