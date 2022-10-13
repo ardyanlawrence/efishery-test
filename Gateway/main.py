@@ -3,9 +3,9 @@ from os import system
 from threading import Thread
 from time import time, sleep
 from zlib import compress
-import bluetooth
+# import bluetooth
 import paho.mqtt.client as mqtt
-from flask import Flask, Response, request
+from flask import Flask, Response, request, render_template
 from lib.utility.json_ import parse, stringify, safe_deep_get_with_type
 from lib.webservice.wsrequest import JPOST
 from lib.utility.file_ import save_json_file, load_json_file
@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 global ENABLE_REUPLOAD
 global reupload_backup_timer
+global sock
 FIRST_CONNECT = False
 ENABLE_REUPLOAD = False
 reupload_backup_timer = None
@@ -142,6 +143,10 @@ while not FIRST_CONNECT:
 # Flask
 app = Flask(__name__)
 
+@app.route('/')
+def index():
+    return render_template('index.html')
+
 @app.route('/data', methods=['POST'])
 def data():
     body = request.get_json()
@@ -162,6 +167,7 @@ def bl_scan():
 
 @app.route('/connect_bl', methods=['POST'])
 def connect_bl():
+    global sock
     try:
         body = request.get_json()
         if body is None:
@@ -183,11 +189,31 @@ def connect_bl():
         port=1
         print("connecting to \"%s\" on %s, port %s" % (name, host, port))
         # Create the client socket
-        sock=bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+        sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
         sock.connect((host, port))
         return Response(status=200)
     except:
         return Response(status=400)
+
+@app.route('/connect_bl', methods=['POST'])
+def disconnect_bl():
+    global sock
+    sock.close()
+    return Response(200)
+
+@app.route('/data_stream')
+def data_stream():
+    def stream():
+        try:
+            while True:
+                data = sock.recv(1024)
+                if not data:
+                    break
+        except OSError:
+            pass
+        yield data  # return also will work
+    return Response(stream(), mimetype='text')
+
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=IOT_PORT)
