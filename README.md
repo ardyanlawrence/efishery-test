@@ -32,11 +32,16 @@ Open a terminal (command prompt on Windows) and enter
 
 	pip install pybluez
 
-For experimental Bluetooth Low Energy support (only for Linux platform -
-for additional dependencies please take look at:
-`ble-dependencies <https://github.com/oscaracena/pygattlib/blob/master/DEPENDS>`_)
-::
+Run main.py menggunakan `sudo python3 main.py
 
-    pip install pybluez[ble]
+## MQTT Topics
+
+| Topic | Description |
+| ----- | --- |
+| mqtt/pub/data | Send Data from Forwarder to MQTT Broker |
+| mqtt/sub/command | Receive Command from MQTT Broker |
+| mqtt/pub/online | Online Notification |
+| mqtt/pub/offline | Offline Notification |
+| + | Wildcard Subscribe |
 
  

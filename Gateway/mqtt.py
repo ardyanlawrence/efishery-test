@@ -18,6 +18,9 @@ class CustomMqtt:
     def data(self):
         return 'mqtt/pub/data'
 
+    def command(self):
+        return 'mqtt/sub/command'
+
     def online(self):
         return 'mqtt/pub/online'
 
