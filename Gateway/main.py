@@ -148,15 +148,6 @@ def template_index():
     return render_template('index.html')
 
 
-@app.route('/data', methods=['POST'])
-def data():
-    body = request.get_json()
-    if body is None:
-        return Response(status=400)
-    publish_mqtt_text_uncompressed(_client, custom_mqtt.data(), body)
-    return Response('OK', status=200, mimetype='text/plain')
-
-
 @app.route('/connect_bl', methods=['GET', 'POST'])
 def connect_bl():
     addr = "E8:68:E7:23:63:86"
@@ -166,7 +157,7 @@ def connect_bl():
     return redirect(url_for('/'))
 
 
-@app.route('/disconnect_bl', methods=['POST'])
+@app.route('/disconnect_bl', methods=['GET', 'POST'])
 def disconnect_bl():
     sock.close()
     return redirect(url_for('/'))
@@ -181,6 +172,7 @@ def data_stream():
                 data = sock.recv(1024)
                 clean_data = data.decode().rstrip('\r\n')
                 js = parse(clean_data)
+                push_backup_data(stringify(js))
                 publish_mqtt_text_uncompressed(_client, custom_mqtt.data(), js)
                 yield clean_data + '<br/>\n'
         except:

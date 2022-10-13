@@ -32,12 +32,12 @@
 <script>
         function connect() {
             var request = new XMLHttpRequest();
-            request.open("POST", "http://127.0.0.1:5001/connect_bl");
+            request.open("POST", "http://127.0.0.1:5000/connect_bl");
             request.send();
         }
         function disconnect() {
             var request = new XMLHttpRequest();
-            request.open("POST", "http://127.0.0.1:5001/disconnect_bl");
+            request.open("POST", "http://127.0.0.1:5000/disconnect_bl");
             request.send();
         }
 </script>

@@ -4,7 +4,7 @@ from time import time
 from json import dumps
 
 # DB_NAME = "/apps/sd2/db/data.db"
-DB_NAME = "data.db"
+DB_NAME = "BackupData.db"
 
 def create_connection(db_file):
     """ create a database connection to the SQLite database
