@@ -3,9 +3,9 @@ from socket import timeout as socket_timeout
 from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 
-from iotera.result.result import Result
-from iotera.utility.json_ import parse_any
-from iotera.webservice.wsresponse import network_failure, input_failure, timeout as wsresponse_timeout, unknown_error
+from ..result.result import Result
+from ..utility.json_ import parse_any
+from ..webservice.wsresponse import network_failure, input_failure, timeout as wsresponse_timeout, unknown_error
 
 
 def REQUEST(request, timeout, resp_content_type='json'):

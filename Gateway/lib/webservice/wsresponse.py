@@ -1,4 +1,4 @@
-from iotera.result.result import Result
+from ..result.result import Result
 
 
 def input_failure():

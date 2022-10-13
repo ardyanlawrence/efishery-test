@@ -1,6 +1,6 @@
 from json import dumps, load, loads
 
-from iotera.utility.object import is_basestring, is_dict, is_int, is_list, is_none, is_type_equals, is_tuple
+from ..utility.object import is_basestring, is_dict, is_int, is_list, is_none, is_type_equals, is_tuple
 
 
 def parse(input_, fallback=None):

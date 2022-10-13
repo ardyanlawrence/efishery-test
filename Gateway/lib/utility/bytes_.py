@@ -1,6 +1,6 @@
 from sys import version_info
 
-from iotera.utility.object import is_basestring
+from ..utility.object import is_basestring
 
 
 def __is_python_3():

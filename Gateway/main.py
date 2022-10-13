@@ -3,7 +3,7 @@ from os import system
 from threading import Thread
 from time import time, sleep
 from zlib import compress
-# import bluetooth
+import bluetooth
 import paho.mqtt.client as mqtt
 from flask import Flask, Response, request, render_template
 from lib.utility.json_ import parse, stringify, safe_deep_get_with_type
@@ -11,7 +11,6 @@ from lib.webservice.wsrequest import JPOST
 from lib.utility.file_ import save_json_file, load_json_file
 from db.db_helper import push_backup_data
 from mqtt import *
-
 
 # Logger level
 logging.basicConfig(level=logging.DEBUG)
@@ -33,16 +32,16 @@ SENSORS_TIMEOUT = 300
 IOT_PORT = 5000
 
 # Mqtt Connection
-mqtt = Mqtt()
+custom_mqtt = CustomMqtt()
 
 
 def subscribe_topic(_client):
-    _client.subscribe(mqtt.subscribe_wildcard())
+    _client.subscribe(custom_mqtt.subscribe_wildcard())
 
 
 def __on_connect_task(_client, userdata, flags, rc):
     # Send online
-    _client.publish(topic=mqtt.online(), payload='{}')
+    _client.publish(topic=custom_mqtt.online(), payload='{}')
 
     global ENABLE_REUPLOAD
     global reupload_backup_timer
@@ -126,10 +125,10 @@ _client = None
 while not FIRST_CONNECT:
     try:
         _client = mqtt.Client()
-        _client.username_pw_set(username=mqtt.mqtt_username, password=mqtt.mqtt_password)
-        _client.will_set(mqtt.offline(), '{}', 0, False)
+        _client.username_pw_set(username=custom_mqtt.mqtt_username, password=custom_mqtt.mqtt_password)
+        _client.will_set(custom_mqtt.offline(), '{}', 0, False)
         _client.tls_set()
-        _client.connect(mqtt.MQTT_HOST, port=mqtt.MQTT_PORT, keepalive=10, bind_address='')
+        _client.connect(custom_mqtt.MQTT_HOST, port=custom_mqtt.MQTT_PORT, keepalive=10, bind_address='')
         _client.on_connect = on_connect
         _client.on_disconnect = on_disconnect
         _client.on_message = on_message
@@ -143,77 +142,54 @@ while not FIRST_CONNECT:
 # Flask
 app = Flask(__name__)
 
+
 @app.route('/')
-def index():
+def template_index():
     return render_template('index.html')
+
 
 @app.route('/data', methods=['POST'])
 def data():
     body = request.get_json()
     if body is None:
         return Response(status=400)
-    publish_mqtt_text_uncompressed(_client, mqtt.data(), body)
+    publish_mqtt_text_uncompressed(_client, custom_mqtt.data(), body)
     return Response('OK', status=200, mimetype='text/plain')
 
-@app.route('/bl_scan', methods=['POST'])
-def bl_scan():
-    nearby_devices = bluetooth.discover_devices(lookup_names=True)
-    bl_array = []
-    for addr in nearby_devices:
-        bl_array.append(addr)
-    bl_dict = {}
-    bl_dict['bl_list'] = bl_array
-    return Response(response=stringify(bl_dict), status=200, mimetype="application/json")
 
-@app.route('/connect_bl', methods=['POST'])
+@app.route('/connect_bl', methods=['GET', 'POST'])
 def connect_bl():
-    global sock
-    try:
-        body = request.get_json()
-        if body is None:
-            return Response(status=400)
-        addr = safe_deep_get(body, ['addr'])
-        service_matches = bluetooth.find_service(address=addr)
-        if len(service_matches) == 0:
-            print("couldn't find the SampleServer service =(")
-            return Response(status=400)
+    addr = "E8:68:E7:23:63:86"
+    port = 1
+    # Create the client socket
+    sock.connect((addr, port))
+    return Response(status=200)
 
-        for s in range(len(service_matches)):
-            print("\nservice_matches: [" + str(s) + "]:")
-            print(service_matches[s])
 
-        first_match = service_matches[0]
-        port = first_match["port"]
-        name = first_match["name"]
-        host = first_match["host"]
-        port=1
-        print("connecting to \"%s\" on %s, port %s" % (name, host, port))
-        # Create the client socket
-        sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-        sock.connect((host, port))
-        return Response(status=200)
-    except:
-        return Response(status=400)
-
-@app.route('/connect_bl', methods=['POST'])
+@app.route('/disconnect_bl', methods=['POST'])
 def disconnect_bl():
-    global sock
     sock.close()
-    return Response(200)
+    return Response(status = 200)
+
 
 @app.route('/data_stream')
 def data_stream():
     def stream():
         try:
+            sock.getpeername()
             while True:
                 data = sock.recv(1024)
-                if not data:
-                    break
-        except OSError:
-            pass
-        yield data  # return also will work
-    return Response(stream(), mimetype='text')
+                clean_data = data.decode().rstrip('\r\n')
+                js = parse(clean_data)
+                publish_mqtt_text_uncompressed(_client, custom_mqtt.data(), js)
+                yield clean_data + '<br/>\n'
+        except:
+            yield "Please Connect First<br/>\n"
+    return Response(stream(), mimetype='text/html')
+
 
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=IOT_PORT)
+    sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+    print(sock)
+    app.run(host='0.0.0.0', port=IOT_PORT)

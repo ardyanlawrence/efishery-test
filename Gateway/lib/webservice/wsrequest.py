@@ -1,9 +1,9 @@
 from sys import version_info
 
-from iotera.utility.bytes_ import from_basestring, is_bytes
-from iotera.utility.json_ import parse, parse_array, stringify_ignore_null
-from iotera.utility.object import is_basestring, is_dict, is_list, opt_basestring, opt_int
-from iotera.webservice.wsresponse import input_failure
+from ..utility.bytes_ import from_basestring, is_bytes
+from ..utility.json_ import parse, parse_array, stringify_ignore_null
+from ..utility.object import is_basestring, is_dict, is_list, opt_basestring, opt_int
+from ..webservice.wsresponse import input_failure
 
 TIMEOUT = 5
 
@@ -16,7 +16,7 @@ def __is_python_3():
 if __is_python_3():
     from urllib.parse import urlencode as urlencode_3
     from urllib.request import Request as Request_3
-    from iotera.webservice.__wsrequest_3 import REQUEST as REQUEST_3
+    from ..webservice.__wsrequest_3 import REQUEST as REQUEST_3
 
     urlencode = urlencode_3
 
@@ -30,7 +30,7 @@ if __is_python_3():
 else:
     from urllib import urlencode as urlencode_2
     from urllib2 import Request as Request_2
-    from iotera.webservice.__wsrequest_2 import REQUEST as REQUEST_2
+    from ..webservice.__wsrequest_2 import REQUEST as REQUEST_2
 
     urlencode = urlencode_2
 

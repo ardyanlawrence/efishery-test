@@ -1,5 +1,5 @@
-from iotera.utility.json_ import safe_del, safe_get
-from iotera.utility.object import is_function
+from ..utility.json_ import safe_del, safe_get
+from ..utility.object import is_function
 
 
 # Context
